@@ -25,7 +25,7 @@ var gameSize = 10;
 var mapSize = 12;           // 2 for refund space
 var bombMap = [];
 var solutionMap = [];           // declare solution as an array
-var playerMap = [];
+var playerMap = [];         // 
 var skipQueue = [];
 
 for (var i = 0; i < mapSize; i++) {
@@ -88,16 +88,22 @@ function updateSolution() {
         }
     }
 }
+
 window.click = click;
 function click(y, x) {
-    if (bombMap[y][x] === 9) {
-        for (var y = 1; y <= gameSize; y++) {
-            for (var x = 1; x <= gameSize; x++) {
-                playerMap[y][x] = "X";
+    if (bombMap[y][x] === 9) {                  // if it's a bomb, spam "X"
+        for (var i = 1; i <= gameSize; i++) {
+            for (var j = 1; j <= gameSize; j++) {
+                if (bombMap[i][j] === 9){
+                playerMap[i][j] = "x";                
+                }
             }
         }
     }
-    else {
+    // else if (bombMap[y][x] === 0) {
+    //     flowerOut();
+    // }
+    else {                                      // if it's 1 - 8, update playerMap
         playerMap[y][x] = solutionMap[y][x]
     };
     display();
