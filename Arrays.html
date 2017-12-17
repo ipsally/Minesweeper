@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Document</title>
+    <!-- <script src="introarrays.js"></script>
+    <script src="printreverse.js"></script>
+    <script src="sandbox.js"></script> -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>Minesweeper</h1>
+<button onclick="newGame(10)">New Game! (default 10)</button>
+    <ol>
+        <li class="done">Create the solution mapping</li>
+            <ol type="a">
+                <li class="done">Create "map" based on set size</li>
+                <li class="done">Define naming convention</li>                
+                    <ul>
+                        <li>9 = bomb</li>
+                        <li>1-8 = neighboring bombs</li>
+                        <li>0 = no neighboring bombs</li>
+                    </ul>
+                <li class="done">Assign random bombs to map based on set bomb count</li>
+                    <ul>
+                        <li>Math.floor(Math.random()*(arr.length) + 0</li>
+                        <li>.random()takes random float value between 0 - 1</li>
+                        <li>multiply to increase range range 0 - 1 is now 0 - n</li>
+                        <li>.floor() rounds to the lower integer, removes decimals</li>
+                        <li>+ 0 not needed unless zero is not the minimum value</li>
+                    </ul>
+            </ol>
+        <li>Assign neighboring clues 1 - 8</li>
+        <ol>
+            <li>Define x y coordinates of mapping</li>
+                <ul>
+                    <li>First layer is row index (A)</li>
+                    <li>Second layer is column index (1)</li>
+                </ul>
+            <li>Create loop that adds 1 to surrounding arrays</li>
+            <li>Create look that applies above to all array cells</li>
+        </ol>
+        <li>create the concealed mapping</li>
+        <li>create UI commands</li>
+
+    </ol>
+
+<pre id="show"></pre>
+<script src="minesweeper.js"></script>
+
+
+
+    <script src="todolist.js"></script>
+</body>
+
+</html>
