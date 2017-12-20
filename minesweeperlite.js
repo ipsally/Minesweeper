@@ -25,13 +25,15 @@ var gameSize = 10;
 var mapSize = 12;           // 2 for refund space
 var bombMap = [];
 var solutionMap = [];           // declare solution as an array
-var playerMap = [];         // 
-var skipQueue = [];
+var playerMap = [];         //  what is triggered 
+var checkStatusMap = [];    //  0 = unexplored, 1 = needs to check, 2 = skip
+var checkList = [];
 
 for (var i = 0; i < mapSize; i++) {
     solutionMap.push(spamArray(mapSize, 0));
     bombMap.push(spamArray(mapSize, 0));    // add an array of n length, n times
     playerMap.push(spamArray(mapSize, " "));
+    checkStatusMap.push(spamArray(mapSize, 0));
 }
 newGame(10);
 display();
@@ -55,11 +57,13 @@ function newGame(bombCount) {
             bombMap[y][x] = 0;
             solutionMap[y][x] = 0;
             playerMap[y][x] = " ";
+            checkStatusMap[y][x] = 0;
         }
     }
     for (var i = 0; i < bombCount; i++) {
         bombMap[rand()][rand()] = 9;
     }
+    checkList = [];
     updateSolution();
     display();
 }
@@ -90,7 +94,7 @@ function updateSolution() {
 
 window.click = click;
 function click(y, x) {
-    if (bombMap[y][x] === 9) {                  // if it's a bomb, reveal all bombs as X
+    if (bombMap[y][x] === 9) {                  // if it's a bomb, reveal all
         for (var i = 1; i <= gameSize; i++) {
             for (var j = 1; j <= gameSize; j++) {
                 if (bombMap[i][j] === 9) {
@@ -99,15 +103,60 @@ function click(y, x) {
             }
         }
     }
-    // else if (bombMap[y][x] === 0) {
-    //     flowerOut();
-    // }
+    else if (solutionMap[y][x] === 0) {             // if it's zero, run this function on surrounding coordinates
+        checkList.push([y, x]);
+        expand(y, x);
+    }
     else {                                      // if it's 1 - 8, update playerMap
-        playerMap[y][x] = solutionMap[y][x]
+        playerMap[y][x] = solutionMap[y][x];
     };
     display();
+    checkStatus();
+    
 }
 
+function checkStatus() {
+    while (checkList.length > 0) {
+        var y = checkList[0][0];
+        var x = checkList[0][1];
+        checkList.shift();
+        expand(y,x);        
+    }   
+}
+
+function isIn(searchArray, searchItem) {
+    for (i=0; i < searchArray.length; i++) {
+        if (String(searchArray[i]) == String(searchItem)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function expand(y, x) {
+    for (var i = -1; i <= 1; i++) {
+        for (var j = -1; j <= 1; j++) {
+            if (playerMap[y + i][x + j] === " ") {         // if playerMap is unrevealed, reveal now
+                playerMap[y + i][x + j] = solutionMap[y + i][x + j];
+                if (playerMap[y + i][x + j] === 0) {         // if playerMap is unrevealed, reveal now
+                    if (isIn(checkList,[y + i,x + j]) === false) {
+                        checkList.push([(y + i), (x + j)]);
+                    }
+                    else {
+                    }
+                }
+            }
+            else if (playerMap[y + i][x + j] === 0) {         // if playerMap is unrevealed, reveal now
+                if (i !== 0 && j !== 0) {
+
+                    checkList.push([(y + i), (x + j)]);
+                }
+            }
+        }
+    }
+    display();
+}
 
 // 3. create the concealed mapping
 
