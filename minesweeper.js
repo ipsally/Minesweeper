@@ -25,13 +25,15 @@ var gameSize = 10;
 var mapSize = 12;           // 2 for refund space
 var bombMap = [];
 var solutionMap = [];           // declare solution as an array
-var playerMap = [];         // 
-var skipQueue = [];
+var playerMap = [];         //  what is triggered 
+var checkStatusMap = [];    //  0 = unexplored, 1 = needs to check, 2 = skip
+var checkList = [];
 
 for (var i = 0; i < mapSize; i++) {
     solutionMap.push(spamArray(mapSize, 0));
     bombMap.push(spamArray(mapSize, 0));    // add an array of n length, n times
     playerMap.push(spamArray(mapSize, " "));
+    checkStatusMap.push(spamArray(mapSize, 0));
 }
 newGame(10);
 display();
@@ -55,11 +57,13 @@ function newGame(bombCount) {
             bombMap[y][x] = 0;
             solutionMap[y][x] = 0;
             playerMap[y][x] = " ";
+            checkStatusMap[y][x] = 0;
         }
     }
     for (var i = 0; i < bombCount; i++) {
         bombMap[rand()][rand()] = 9;
     }
+    checkList = [];
     updateSolution();
     display();
 }
@@ -89,8 +93,20 @@ function updateSolution() {
 }
 
 window.click = click;
+window.contextmenu = flag;
+
+function flag(y, x) {
+    if (playerMap[y][x] === "$") {
+        playerMap[y][x] = " ";
+    }
+    else {
+        playerMap[y][x] = "$";
+    }
+    display();
+}
+
 function click(y, x) {
-    if (bombMap[y][x] === 9) {                  // if it's a bomb, reveal all bombs as X
+    if (bombMap[y][x] === 9) {                  // if it's a bomb, reveal all
         for (var i = 1; i <= gameSize; i++) {
             for (var j = 1; j <= gameSize; j++) {
                 if (bombMap[i][j] === 9) {
@@ -99,15 +115,61 @@ function click(y, x) {
             }
         }
     }
-    // else if (bombMap[y][x] === 0) {
-    //     flowerOut();
-    // }
+    else if (solutionMap[y][x] === 0) {             // if it's zero, run this function on surrounding coordinates
+        checkList.push([y, x]);
+        expand(y, x);
+    }
     else {                                      // if it's 1 - 8, update playerMap
-        playerMap[y][x] = solutionMap[y][x]
+        playerMap[y][x] = solutionMap[y][x];
     };
     display();
+    checkStatus();
+
 }
 
+function checkStatus() {
+    while (checkList.length > 0) {
+        var y = checkList[0][0];
+        var x = checkList[0][1];
+        checkList.shift();
+        expand(y, x);
+    }
+}
+
+function isIn(searchArray, searchItem) {
+    for (i = 0; i < searchArray.length; i++) {
+        if (String(searchArray[i]) == String(searchItem)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function expand(y, x) {
+    for (var i = -1; i <= 1; i++) {
+        for (var j = -1; j <= 1; j++) {
+            var yi = y + i;
+            var xj = x + j;
+            if (playerMap[yi][xj] === " ") {         // if playerMap is unrevealed, reveal now
+                playerMap[yi][xj] = solutionMap[yi][xj];
+                if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
+                    if (isIn(checkList, [yi, xj]) === false) {
+                        checkList.push([(yi), (xj)]);
+                    }
+                    else {
+                    }
+                }
+            }
+            else if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
+                if (i !== 0 && j !== 0) {
+                    checkList.push([(yi), (xj)]);
+                }
+            }
+        }
+    }
+    display();
+}
 
 // 3. create the concealed mapping
 
@@ -117,7 +179,10 @@ function display() {
     for (var y = 1; y <= gameSize; y++) {
         for (var x = 1; x <= gameSize; x++) {
             if (playerMap[y][x] === " ") {
-                str += "<button onclick='window.click(" + y + "," + x + ")'>  </button>";
+                str += "<button onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>  </button>";
+            }
+            else if (playerMap[y][x] === "$") {
+                str += "<button onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>$</button>";
             }
             else {
                 str += "<button>" + playerMap[y][x] + "</button>";
@@ -125,9 +190,13 @@ function display() {
         }
         str += "\n"
     }
-    playerMap.forEach(function(flag){
-        flagCount++;
-    })
-    $show.innerHTML = str + "Flag Count: " + flagCount;
+    for (var y = 1; y < gameSize; y++) {
+        for (var x = 1; x < gameSize; x++) {
+            if (playerMap[y][x] == "$") {
+                flagCount++;
+            }
+        }
+    }
+    $show.innerHTML = str + "Flags used: " + flagCount;
 }
 // 4. create UI commands
