@@ -113,6 +113,7 @@ function click(y, x) {
 
 function display() {
     var str = "";
+    var flagCount = 0;
     for (var y = 1; y <= gameSize; y++) {
         for (var x = 1; x <= gameSize; x++) {
             if (playerMap[y][x] === " ") {
@@ -124,6 +125,9 @@ function display() {
         }
         str += "\n"
     }
-    $show.innerHTML = str;
+    playerMap.forEach(function(flag){
+        flagCount++;
+    })
+    $show.innerHTML = str + "Flag Count: " + flagCount;
 }
 // 4. create UI commands

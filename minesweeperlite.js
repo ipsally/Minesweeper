@@ -93,6 +93,18 @@ function updateSolution() {
 }
 
 window.click = click;
+window.contextmenu = flag;
+
+function flag(y, x) {
+    if (playerMap[y][x] === "$") {
+        playerMap[y][x] = " ";
+    }
+    else {
+        playerMap[y][x] = "$";
+    }
+    display();
+}
+
 function click(y, x) {
     if (bombMap[y][x] === 9) {                  // if it's a bomb, reveal all
         for (var i = 1; i <= gameSize; i++) {
@@ -112,7 +124,7 @@ function click(y, x) {
     };
     display();
     checkStatus();
-    
+
 }
 
 function checkStatus() {
@@ -120,12 +132,12 @@ function checkStatus() {
         var y = checkList[0][0];
         var x = checkList[0][1];
         checkList.shift();
-        expand(y,x);        
-    }   
+        expand(y, x);
+    }
 }
 
 function isIn(searchArray, searchItem) {
-    for (i=0; i < searchArray.length; i++) {
+    for (i = 0; i < searchArray.length; i++) {
         if (String(searchArray[i]) == String(searchItem)) {
             return true;
         }
@@ -137,20 +149,21 @@ function isIn(searchArray, searchItem) {
 function expand(y, x) {
     for (var i = -1; i <= 1; i++) {
         for (var j = -1; j <= 1; j++) {
-            if (playerMap[y + i][x + j] === " ") {         // if playerMap is unrevealed, reveal now
-                playerMap[y + i][x + j] = solutionMap[y + i][x + j];
-                if (playerMap[y + i][x + j] === 0) {         // if playerMap is unrevealed, reveal now
-                    if (isIn(checkList,[y + i,x + j]) === false) {
-                        checkList.push([(y + i), (x + j)]);
+            var yi = y + i;
+            var xj = x + j;
+            if (playerMap[yi][xj] === " ") {         // if playerMap is unrevealed, reveal now
+                playerMap[yi][xj] = solutionMap[yi][xj];
+                if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
+                    if (isIn(checkList, [yi, xj]) === false) {
+                        checkList.push([(yi), (xj)]);
                     }
                     else {
                     }
                 }
             }
-            else if (playerMap[y + i][x + j] === 0) {         // if playerMap is unrevealed, reveal now
+            else if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
                 if (i !== 0 && j !== 0) {
-
-                    checkList.push([(y + i), (x + j)]);
+                    checkList.push([(yi), (xj)]);
                 }
             }
         }
@@ -162,10 +175,14 @@ function expand(y, x) {
 
 function display() {
     var str = "";
+    var flagCount = 0;
     for (var y = 1; y <= gameSize; y++) {
         for (var x = 1; x <= gameSize; x++) {
             if (playerMap[y][x] === " ") {
-                str += "<button onclick='window.click(" + y + "," + x + ")'>  </button>";
+                str += "<button onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>  </button>";
+            }
+            else if (playerMap[y][x] === "$") {
+                str += "<button onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>$</button>";
             }
             else {
                 str += "<button>" + playerMap[y][x] + "</button>";
@@ -173,6 +190,13 @@ function display() {
         }
         str += "\n"
     }
-    $show.innerHTML = str;
+    for (var y = 1; y < gameSize; y++) {
+        for (var x = 1; x < gameSize; x++) {
+            if (playerMap[y][x] == "$") {
+                flagCount++;
+            }
+        }
+    }
+    $show.innerHTML = str + "Flags used: " + flagCount;
 }
 // 4. create UI commands
