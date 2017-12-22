@@ -161,7 +161,7 @@ function expand(y, x) {
         for (var j = -1; j <= 1; j++) {     //
             var yi = y + i;
             var xj = x + j;
-            if (yi >= 0 && yi < mapSize && xj >= 0 && xj < mapSize) {         // check all 9 cells as long as it's within size
+            if (yi > 0 && yi < mapSize && xj > 0 && xj < mapSize) {         // check all 9 cells as long as it's within size
                 if (playerMap[yi][xj] === " ") {         // if playerMap is unrevealed, reveal now
                     playerMap[yi][xj] = solutionMap[yi][xj];
                     if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
