@@ -14,29 +14,29 @@
 // 3. create the concealed mapping
 // 4. create UI commands
 
-// TEST ARRAY var test = [Array(3),Array(3),Array(3)]; for (var i = 0; i < 3; i++) {for (var j = 0; j < 3; j++){ test[i][j] = 1}} 
-
-
 var $show = document.getElementById("show");
 
+
+// TEST ARRAY var test = [Array(3),Array(3),Array(3)]; for (var i = 0; i < 3; i++) {for (var j = 0; j < 3; j++){ test[i][j] = 1}} 
 //     1.1 Create "map" based on set size
 
-var gameSize = 10;
-var mapSize = 12;           // 2 for refund space
-var bombMap = [];
-var solutionMap = [];           // declare solution as an array
-var playerMap = [];         //  what is triggered 
-var checkStatusMap = [];    //  0 = unexplored, 1 = needs to check, 2 = skip
-var checkList = [];
+var gameSize = 10;          // what player sees
+var mapSize = 12;           // array index length, +2 for refund space
+var bombMap = [];           // smaller array for where bombs are located
+var solutionMap = [];           // array storing number hints
+var playerMap = [];         //  what's player sees
+var skipList = [];     // non zero's and checked zero's 
+var checkList = [];    // new zero's not already on skipList[]
 
 for (var i = 0; i < mapSize; i++) {
     solutionMap.push(spamArray(mapSize, 0));
     bombMap.push(spamArray(mapSize, 0));    // add an array of n length, n times
     playerMap.push(spamArray(mapSize, " "));
-    checkStatusMap.push(spamArray(mapSize, 0));
 }
 newGame(10);
 display();
+
+
 
 function spamArray(length, value) {        // Takes a number called "length", and outputs an array of that length with only zeroes
     var temp = Array(length);
@@ -57,19 +57,19 @@ function newGame(bombCount) {
             bombMap[y][x] = 0;
             solutionMap[y][x] = 0;
             playerMap[y][x] = " ";
-            checkStatusMap[y][x] = 0;
         }
     }
     for (var i = 0; i < bombCount; i++) {
         bombMap[rand()][rand()] = 9;
     }
     checkList = [];
+    skipList = [];
     updateSolution();
     display();
 }
 
 
-// 2. Assign neighboring clues 1 - 8 on solutinoMap
+// 2. Assign neighboring clues 1 - 8 on solutionMap
 function updateSolution() {
     for (var y = 1; y <= gameSize; y++) {
         for (var x = 1; x <= gameSize; x++) {
@@ -106,11 +106,13 @@ function flag(y, x) {
 }
 
 function click(y, x) {
-    if (bombMap[y][x] === 9) {                  // if it's a bomb, reveal all
+    if (bombMap[y][x] === 9) {                  // if it's a bomb, reveal all unrevealed bombs
         for (var i = 1; i <= gameSize; i++) {
             for (var j = 1; j <= gameSize; j++) {
                 if (bombMap[i][j] === 9) {
-                    playerMap[i][j] = "x";
+                    if (playerMap[i][j] !== "$") {      // if bomblocation isn't flagged, mark x
+                        playerMap[i][j] = "x";
+                    }
                 }
             }
         }
@@ -121,6 +123,7 @@ function click(y, x) {
     }
     else {                                      // if it's 1 - 8, update playerMap
         playerMap[y][x] = solutionMap[y][x];
+        skipList.push([y, x]);
     };
     display();
     checkStatus();
@@ -131,39 +134,39 @@ function checkStatus() {
     while (checkList.length > 0) {
         var y = checkList[0][0];
         var x = checkList[0][1];
-        checkList.shift();
+        skipList.push(checkList.shift());
         expand(y, x);
     }
 }
 
-function isIn(searchArray, searchItem) {
+function isNewTo(searchArray, searchItem) {     // checks whether array already exists within array
     for (i = 0; i < searchArray.length; i++) {
         if (String(searchArray[i]) == String(searchItem)) {
-            return true;
+            return false;
         }
     }
-    return false;
+    return true;
 }
 
 
 function expand(y, x) {
-    for (var i = -1; i <= 1; i++) {
-        for (var j = -1; j <= 1; j++) {
+    for (var i = -1; i <= 1; i++) {         // check all 9 cells
+        for (var j = -1; j <= 1; j++) {     //
             var yi = y + i;
             var xj = x + j;
-            if (playerMap[yi][xj] === " ") {         // if playerMap is unrevealed, reveal now
-                playerMap[yi][xj] = solutionMap[yi][xj];
-                if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
-                    if (isIn(checkList, [yi, xj]) === false) {
-                        checkList.push([(yi), (xj)]);
-                    }
-                    else {
+            if (yi >= 0 && yi < mapSize && xj >= 0 && xj < mapSize) {         // check all 9 cells as long as it's within size
+                if (playerMap[yi][xj] === " ") {         // if playerMap is unrevealed, reveal now
+                    playerMap[yi][xj] = solutionMap[yi][xj];
+                    if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
+                        if (yi >= 0 && yi < mapSize && xj >= 0 && xj < mapSize && isNewTo(skipList, [yi, xj]) && isNewTo(checkList, [(yi), (xj)])) {
+                            checkList.push([yi, xj]);
+                        }
                     }
                 }
-            }
-            else if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
-                if (i !== 0 && j !== 0) {
-                    checkList.push([(yi), (xj)]);
+                else if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
+                    if (isNewTo(skipList, [yi, xj]) && isNewTo(checkList, [(yi), (xj)])) {
+                        checkList.push([yi, xj]);
+                    }
                 }
             }
         }
@@ -183,6 +186,9 @@ function display() {
             }
             else if (playerMap[y][x] === "$") {
                 str += "<button onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>$</button>";
+            }
+            else if (playerMap[y][x] === 0) {
+                str += "<button disabled=on>0</button>";
             }
             else {
                 str += "<button>" + playerMap[y][x] + "</button>";
