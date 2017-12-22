@@ -64,6 +64,13 @@ function newGame(bombCount) {
     }
     checkList = [];
     skipList = [];
+    for (var i = 0; i < mapSize; i++) {
+        for (var j = 1; j < mapSize; j++) {
+            if (i === 0 || j === 0 || i === mapSize-1 || j === mapSize-1){
+                skipList.push([i,j]);
+            }
+        }
+    }
     updateSolution();
     display();
 }
@@ -158,14 +165,9 @@ function expand(y, x) {
                 if (playerMap[yi][xj] === " ") {         // if playerMap is unrevealed, reveal now
                     playerMap[yi][xj] = solutionMap[yi][xj];
                     if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
-                        if (yi >= 0 && yi < mapSize && xj >= 0 && xj < mapSize && isNewTo(skipList, [yi, xj]) && isNewTo(checkList, [(yi), (xj)])) {
+                        if (yi > 0 && yi < mapSize && xj > 0 && xj < mapSize && isNewTo(skipList, [yi, xj]) && isNewTo(checkList, [(yi), (xj)])) {
                             checkList.push([yi, xj]);
                         }
-                    }
-                }
-                else if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
-                    if (isNewTo(skipList, [yi, xj]) && isNewTo(checkList, [(yi), (xj)])) {
-                        checkList.push([yi, xj]);
                     }
                 }
             }
