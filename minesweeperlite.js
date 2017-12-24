@@ -20,20 +20,15 @@ var $show = document.getElementById("show");
 // TEST ARRAY var test = [Array(3),Array(3),Array(3)]; for (var i = 0; i < 3; i++) {for (var j = 0; j < 3; j++){ test[i][j] = 1}} 
 //     1.1 Create "map" based on set size
 
-var gameSize = 10;          // what player sees
-var mapSize = 12;           // array index length, +2 for refund space
+var gameSize = 0;          // what player sees
+var mapSize = 0;           // array index length, +2 for refund space
 var bombMap = [];           // smaller array for where bombs are located
 var solutionMap = [];           // array storing number hints
 var playerMap = [];         //  what's player sees
 var skipList = [];     // non zero's and checked zero's 
 var checkList = [];    // new zero's not already on skipList[]
 
-for (var i = 0; i < mapSize; i++) {
-    solutionMap.push(spamArray(mapSize, 0));
-    bombMap.push(spamArray(mapSize, 0));    // add an array of n length, n times
-    playerMap.push(spamArray(mapSize, " "));
-}
-newGame(10);
+newGame(10,10);
 display();
 
 
@@ -51,7 +46,18 @@ function rand() {
     return Math.ceil(Math.random() * (gameSize));
 }
 
-function newGame(bombCount) {
+function newGame(bombCount, width) {
+    gameSize = width ;
+    mapSize = width + 2;
+    solutionMap = [];
+    bombMap = [];
+    playerMap = [];
+    for (var i = 0; i < mapSize; i++) {
+        solutionMap.push(spamArray(mapSize, 0));
+        bombMap.push(spamArray(mapSize, 0));    // add an array of n length, n times
+        playerMap.push(spamArray(mapSize, " "));
+    }
+    
     for (var y = 0; y <= gameSize; y++) {
         for (var x = 0; x <= gameSize; x++) {
             bombMap[y][x] = 0;
@@ -184,19 +190,19 @@ function display() {
     for (var y = 1; y <= gameSize; y++) {
         for (var x = 1; x <= gameSize; x++) {
             if (playerMap[y][x] === " ") {
-                str += "<button onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>  </button>";
+                str += "<button class=field onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>  </button>";
             }
             else if (playerMap[y][x] === "$") {
-                str += "<button onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>$</button>";
+                str += "<button class=field onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>$</button>";
             }
             else if (playerMap[y][x] === 0) {
-                str += "<button disabled=on>0</button>";
+                str += "<button class=field disabled=on>-</button>";
             }
             else {
-                str += "<button>" + playerMap[y][x] + "</button>";
+                str += "<button class=field>" + playerMap[y][x] + "</button>";
             }
         }
-        str += "\n"
+        str += "<br>"
     }
     for (var y = 1; y < gameSize; y++) {
         for (var x = 1; x < gameSize; x++) {
@@ -206,5 +212,25 @@ function display() {
         }
     }
     $show.innerHTML = str + "Flags used: " + flagCount;
+    checkWin();
 }
 // 4. create UI commands
+
+function checkWin() {
+    for (var y = 1; y <= gameSize; y++) {
+        for (var x = 1; x <= gameSize; x++) {
+            if (playerMap[y][x] === "x") {
+                alert('you lost! :(');
+                return false;
+            }
+        }
+    }
+    for (var y = 1; y <= gameSize; y++) {
+        for (var x = 1; x <= gameSize; x++) {
+            if (playerMap[y][x] === " ") {
+                return false;
+            }
+        }
+    }
+    alert('You Win!');
+}

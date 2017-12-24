@@ -1,7 +1,8 @@
-li {
-    background-color: #fff0df;
+body {
+    font-family: monospace;
 }
 
-.done {
-    text-decoration: line-through;
+button.field {
+    width: 32px;
+    height: 32px;
 }
