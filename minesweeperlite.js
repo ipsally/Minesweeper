@@ -20,6 +20,7 @@ var $show = document.getElementById("show");
 // TEST ARRAY var test = [Array(3),Array(3),Array(3)]; for (var i = 0; i < 3; i++) {for (var j = 0; j < 3; j++){ test[i][j] = 1}} 
 //     1.1 Create "map" based on set size
 
+var gameEnd = false;
 var gameSize = 0;          // what player sees
 var mapSize = 0;           // array index length, +2 for refund space
 var bombMap = [];           // smaller array for where bombs are located
@@ -40,10 +41,11 @@ function spamArray(length, value) {        // Takes a number called "length", an
 
 //     1.3 Assign random bombs to map based on set bomb count
 function rand(range) {
-    return Math.ceil(Math.random() * (range));
+    return Math.floor(Math.random() * (range));
 }
 
 function newGame(bombCount, width) {
+    gameEnd = false;
     gameSize = width;
     mapSize = width + 2;
     solutionMap = [];
@@ -75,7 +77,9 @@ function newGame(bombCount, width) {
 
     for (var i = 0; i < bombCount; i++) {
         var setBombTo = [];             // array holds a coordinate to set a Bomb in
+        
         setBombTo = allCoord.splice(rand(allCoord.length), 1);       // splice a random coordinate from map to setBomb
+        console.log(setBombTo);
         bombMap[setBombTo[0][0]][setBombTo[0][1]] = 9;               // now that coordinate has a bomb and is removed from possible
     }
 
@@ -113,7 +117,7 @@ function updateSolution() {
     for (var y = 1; y <= gameSize; y++) {
         for (var x = 1; x <= gameSize; x++) {
             if (bombMap[y][x] === 9) {
-                solutionMap[y][x] = "💣";
+                solutionMap[y][x] = "💥";
             }
         }
     }
@@ -138,12 +142,15 @@ function click(y, x) {
             for (var j = 1; j <= gameSize; j++) {
                 if (bombMap[i][j] === 9) {
                     if (playerMap[i][j] !== "🚩") {      // if bomb location isn't flagged, mark x
-                        playerMap[i][j] = "💣";
+                        playerMap[i][j] = "💥";
                     }
                 }
+                else if (playerMap[i][j] === "🚩") {
+                        playerMap[i][j] = "❌";
+                    }
             }
         }
-        alert('you lost! :(');
+        display();
     }
     else if (solutionMap[y][x] === 0) {             // if it's zero, run this function on surrounding coordinates
         checkList.push([y, x]);
@@ -205,16 +212,22 @@ function display() {
     for (var y = 1; y <= gameSize; y++) {
         for (var x = 1; x <= gameSize; x++) {
             if (playerMap[y][x] === " ") {
-                str += "<button class=field onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>  </button>";
+                str += "<button class='field new' onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'> </button>";
             }
             else if (playerMap[y][x] === "🚩") {
-                str += "<button class=field onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>🚩</button>";
+                str += "<button class='field emoji' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>🚩</button>";
             }
             else if (playerMap[y][x] === 0) {
-                str += "<button class=field disabled=on>-</button>";
+                str += "<button class='field' disabled=on> </button>";
+            }
+            else if (playerMap[y][x] === "💥") {
+                str += "<button class='field emoji' disabled=on>💥</button>";
+            }
+            else if (playerMap[y][x] === "❌") {
+                str += "<button class='field emoji' disabled=on>❌</button>";
             }
             else {
-                str += "<button class=field>" + playerMap[y][x] + "</button>";
+                str += "<button class='field' disabled=on>" + playerMap[y][x] + "</button>";
             }
         }
         str += "<br>"
@@ -227,7 +240,9 @@ function display() {
         }
     }
     $show.innerHTML = str + "Flags used: " + flagCount;
-    checkWin();
+    if (gameEnd === false) {        // if last checkWin already determined game is over, skip this recursion
+        checkWin();
+    }
 }
 // 4. create UI commands
 
@@ -238,6 +253,20 @@ function checkWin() {
                 return false;
             }
         }
+    }
+    gameEnd = true;         // establishes game as finished, revents recursion    
+    var wrongbomb = false;
+    for (var y = 1; y <= gameSize; y++) {
+        for (var x = 1; x <= gameSize; x++) {
+            if (bombMap[y][x] !== 9 && playerMap[y][x] === "🚩") {
+                playerMap[y][x] = "❌";
+                wrongbomb = true;
+            }
+        }
+    }
+    display();
+    if (wrongbomb === true) {
+        return false;
     }
     alert('You Win!');
 }

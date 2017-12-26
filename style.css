@@ -5,4 +5,33 @@ body {
 button.field {
     width: 32px;
     height: 32px;
+    border: solid 1px #ccc;
+    background: #ddd;
+    background-color: #eee;        
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
 }
+
+button.emoji {
+    border: solid 1px #ccc;
+    background-color: #fff;        
+    line-height: 0.8em;
+    text-align: center;
+    display: inline;
+    cursor: pointer;
+}
+
+button.new {
+    border: solid 1px #bbb;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    background-color: #ddd;
+    
+    cursor: pointer;
+}
+/* .emoji {
+    margin: 2px 0 -2px 0;    
+} */
