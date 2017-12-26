@@ -113,7 +113,7 @@ function updateSolution() {
     for (var y = 1; y <= gameSize; y++) {
         for (var x = 1; x <= gameSize; x++) {
             if (bombMap[y][x] === 9) {
-                solutionMap[y][x] = "x";
+                solutionMap[y][x] = "💣";
             }
         }
     }
@@ -138,7 +138,7 @@ function click(y, x) {
             for (var j = 1; j <= gameSize; j++) {
                 if (bombMap[i][j] === 9) {
                     if (playerMap[i][j] !== "🚩") {      // if bomb location isn't flagged, mark x
-                        playerMap[i][j] = "x";
+                        playerMap[i][j] = "💣";
                     }
                 }
             }
