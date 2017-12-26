@@ -28,9 +28,6 @@ var playerMap = [];         //  what's player sees
 var skipList = [];     // non zero's and checked zero's 
 var checkList = [];    // new zero's not already on skipList[]
 
-newGame(10,10);
-display();
-
 
 
 function spamArray(length, value) {        // Takes a number called "length", and outputs an array of that length with only zeroes
@@ -42,12 +39,12 @@ function spamArray(length, value) {        // Takes a number called "length", an
 }
 
 //     1.3 Assign random bombs to map based on set bomb count
-function rand() {
-    return Math.ceil(Math.random() * (gameSize));
+function rand(range) {
+    return Math.ceil(Math.random() * (range));
 }
 
 function newGame(bombCount, width) {
-    gameSize = width ;
+    gameSize = width;
     mapSize = width + 2;
     solutionMap = [];
     bombMap = [];
@@ -57,7 +54,8 @@ function newGame(bombCount, width) {
         bombMap.push(spamArray(mapSize, 0));    // add an array of n length, n times
         playerMap.push(spamArray(mapSize, " "));
     }
-    
+
+
     for (var y = 0; y <= gameSize; y++) {
         for (var x = 0; x <= gameSize; x++) {
             bombMap[y][x] = 0;
@@ -65,21 +63,37 @@ function newGame(bombCount, width) {
             playerMap[y][x] = " ";
         }
     }
-    for (var i = 0; i < bombCount; i++) {
-        bombMap[rand()][rand()] = 9;
+
+    var allCoord = [];
+    for (var i = 0; i < mapSize; i++) {
+        for (var j = 1; j < mapSize; j++) {
+            if (i !== 0 && j !== 0 && i !== (gameSize + 1) && j !== gameSize + 1) {
+                allCoord.push([i, j]);
+            }
+        }
     }
+
+    for (var i = 0; i < bombCount; i++) {
+        var setBombTo = [];             // array holds a coordinate to set a Bomb in
+        setBombTo = allCoord.splice(rand(allCoord.length), 1);       // splice a random coordinate from map to setBomb
+        bombMap[setBombTo[0][0]][setBombTo[0][1]] = 9;               // now that coordinate has a bomb and is removed from possible
+    }
+
     checkList = [];
     skipList = [];
     for (var i = 0; i < mapSize; i++) {
         for (var j = 1; j < mapSize; j++) {
-            if (i === 0 || j === 0 || i === mapSize-1 || j === mapSize-1){
-                skipList.push([i,j]);
+            if (i === 0 || j === 0 || i === mapSize - 1 || j === mapSize - 1) {
+                skipList.push([i, j]);
             }
         }
     }
     updateSolution();
     display();
 }
+
+newGame(10, 10);
+display();
 
 
 // 2. Assign neighboring clues 1 - 8 on solutionMap
@@ -109,11 +123,11 @@ window.click = click;
 window.contextmenu = flag;
 
 function flag(y, x) {
-    if (playerMap[y][x] === "$") {
+    if (playerMap[y][x] === "🚩") {
         playerMap[y][x] = " ";
     }
     else {
-        playerMap[y][x] = "$";
+        playerMap[y][x] = "🚩";
     }
     display();
 }
@@ -123,12 +137,13 @@ function click(y, x) {
         for (var i = 1; i <= gameSize; i++) {
             for (var j = 1; j <= gameSize; j++) {
                 if (bombMap[i][j] === 9) {
-                    if (playerMap[i][j] !== "$") {      // if bomblocation isn't flagged, mark x
+                    if (playerMap[i][j] !== "🚩") {      // if bomb location isn't flagged, mark x
                         playerMap[i][j] = "x";
                     }
                 }
             }
         }
+        alert('you lost! :(');
     }
     else if (solutionMap[y][x] === 0) {             // if it's zero, run this function on surrounding coordinates
         checkList.push([y, x]);
@@ -192,8 +207,8 @@ function display() {
             if (playerMap[y][x] === " ") {
                 str += "<button class=field onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>  </button>";
             }
-            else if (playerMap[y][x] === "$") {
-                str += "<button class=field onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>$</button>";
+            else if (playerMap[y][x] === "🚩") {
+                str += "<button class=field onclick='window.click(" + y + "," + x + ")' oncontextmenu='window.contextmenu(" + y + "," + x + ")'>🚩</button>";
             }
             else if (playerMap[y][x] === 0) {
                 str += "<button class=field disabled=on>-</button>";
@@ -206,7 +221,7 @@ function display() {
     }
     for (var y = 1; y < gameSize; y++) {
         for (var x = 1; x < gameSize; x++) {
-            if (playerMap[y][x] == "$") {
+            if (playerMap[y][x] == "🚩") {
                 flagCount++;
             }
         }
@@ -219,15 +234,7 @@ function display() {
 function checkWin() {
     for (var y = 1; y <= gameSize; y++) {
         for (var x = 1; x <= gameSize; x++) {
-            if (playerMap[y][x] === "x") {
-                alert('you lost! :(');
-                return false;
-            }
-        }
-    }
-    for (var y = 1; y <= gameSize; y++) {
-        for (var x = 1; x <= gameSize; x++) {
-            if (playerMap[y][x] === " ") {
+            if (bombMap[y][x] === 9 && playerMap[y][x] != "🚩") {
                 return false;
             }
         }
