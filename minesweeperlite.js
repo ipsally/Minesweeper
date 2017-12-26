@@ -136,6 +136,7 @@ function flag(y, x) {
     display();
 }
 
+
 function click(y, x) {
     if (bombMap[y][x] === 9) {                  // if it's a bomb, reveal all unrevealed bombs
         for (var i = 1; i <= gameSize; i++) {
