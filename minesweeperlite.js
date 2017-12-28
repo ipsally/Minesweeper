@@ -77,7 +77,7 @@ function newGame(bombCount, width) {
 
     for (var i = 0; i < bombCount; i++) {
         var setBombTo = [];             // array holds a coordinate to set a Bomb in
-        
+
         setBombTo = allCoord.splice(rand(allCoord.length), 1);       // splice a random coordinate from map to setBomb
         console.log(setBombTo);
         bombMap[setBombTo[0][0]][setBombTo[0][1]] = 9;               // now that coordinate has a bomb and is removed from possible
@@ -136,7 +136,6 @@ function flag(y, x) {
     display();
 }
 
-
 function click(y, x) {
     if (bombMap[y][x] === 9) {                  // if it's a bomb, reveal all unrevealed bombs
         for (var i = 1; i <= gameSize; i++) {
@@ -147,8 +146,8 @@ function click(y, x) {
                     }
                 }
                 else if (playerMap[i][j] === "🚩") {
-                        playerMap[i][j] = "❌";
-                    }
+                    playerMap[i][j] = "❌";
+                }
             }
         }
         display();
