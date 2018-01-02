@@ -79,7 +79,6 @@ function newGame(bombCount, width) {
         var setBombTo = [];             // array holds a coordinate to set a Bomb in
         
         setBombTo = allCoord.splice(rand(allCoord.length), 1);       // splice a random coordinate from map to setBomb
-        console.log(setBombTo);
         bombMap[setBombTo[0][0]][setBombTo[0][1]] = 9;               // now that coordinate has a bomb and is removed from possible
     }
 
@@ -232,8 +231,8 @@ function display() {
         }
         str += "<br>"
     }
-    for (var y = 1; y < gameSize; y++) {
-        for (var x = 1; x < gameSize; x++) {
+    for (var y = 1; y <= gameSize; y++) {
+        for (var x = 1; x <= gameSize; x++) {
             if (playerMap[y][x] == "🚩") {
                 flagCount++;
             }
