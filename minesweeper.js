@@ -17,17 +17,16 @@
 var $show = document.getElementById("show");
 
 
-// TEST ARRAY var test = [Array(3),Array(3),Array(3)]; for (var i = 0; i < 3; i++) {for (var j = 0; j < 3; j++){ test[i][j] = 1}} 
 //     1.1 Create "map" based on set size
 
 var gameEnd = false;
-var gameSize = 0;          // what player sees
-var mapSize = 0;           // array index length, +2 for refund space
-var bombMap = [];           // smaller array for where bombs are located
-var solutionMap = [];           // array storing number hints
-var playerMap = [];         //  what's player sees
-var skipList = [];     // non zero's and checked zero's 
-var checkList = [];    // new zero's not already on skipList[]
+var gameSize = 0;           // size of map requested
+var mapSize = 0;            // size of acual map for purpose
+var bombMap = [];           // smaller array holding bomb location
+var solutionMap = [];       // array storing number hints (for accuracy purpose, not combined with bombMap)
+var playerMap = [];         // what's shows player's progress and is compared to solution
+var skipList = [];          // holds coordinates for non zero's and checked zero's
+var checkList = [];         // holds coordinates for new zero's to check if not already on skipList[]
 
 
 
@@ -40,53 +39,47 @@ function spamArray(length, value) {        // Takes a number called "length", an
 }
 
 //     1.3 Assign random bombs to map based on set bomb count
-function rand(range) {
+function rand(range) {                                                                              // generic random function to shorten code (may need it again in future development)
     return Math.floor(Math.random() * (range));
 }
 
-function newGame(bombCount, width) {
-    gameEnd = false;
-    gameSize = width;
-    mapSize = width + 2;
-    solutionMap = [];
+function newGame(bombCount, width) {                                                                // This is run to generate maps and reset values for new game setting
+    gameEnd = false;        // resets new Game value to false
+    gameSize = width;       // determines size of map that player requested / sees
+    mapSize = width + 2;    // +2 for refund space (reasoning explained throughout notes)
+    solutionMap = [];       // reset maps
     bombMap = [];
     playerMap = [];
-    for (var i = 0; i < mapSize; i++) {
-        solutionMap.push(spamArray(mapSize, 0));
-        bombMap.push(spamArray(mapSize, 0));    // add an array of n length, n times
-        playerMap.push(spamArray(mapSize, " "));
+
+
+    for (var i = 0; i < mapSize; i++) {                                                             //  This for loop is set up to create 3 blank maps,
+        solutionMap.push(spamArray(mapSize, 0));                                                    //      at i = 0, push an array of [0][0][0][0][0][0][0][0][0][0][0] in each mapArray via spamArray(how long is spam, what to spam)
+        bombMap.push(spamArray(mapSize, 0));    // add an array of n length, n times                //      repeat until i reaches end of set map length
+        playerMap.push(spamArray(mapSize, " "));                                                    //      result are 3 square array of " "'s or [0]'s equalling the size of player's map
     }
 
-
-    for (var y = 0; y <= gameSize; y++) {
-        for (var x = 0; x <= gameSize; x++) {
-            bombMap[y][x] = 0;
-            solutionMap[y][x] = 0;
-            playerMap[y][x] = " ";
-        }
-    }
-
-    var allCoord = [];
+    var allCoord = [];                                                                              // I need a list of all the possible coordinates for later tracking
     for (var i = 0; i < mapSize; i++) {
         for (var j = 1; j < mapSize; j++) {
             if (i !== 0 && j !== 0 && i !== (gameSize + 1) && j !== gameSize + 1) {
-                allCoord.push([i, j]);
-            }
+                allCoord.push([i, j]);                                                              // for each coordinate that exists, add its number to the list
+            }                                                                                       //      important to note that edge-cases are excluded here, bombs need to be within player's view
         }
     }
 
-    for (var i = 0; i < bombCount; i++) {
-        var setBombTo = [];             // array holds a coordinate to set a Bomb in
+    for (var i = 0; i < bombCount; i++) {                                                           // splice a random coordinate from allCoord and place a bomb there
+        var setBombTo = [];             // array holds a coordinate to set a Bomb in                //      this logic revents the same coordinate being randomly picked resulting in less bombs
         
         setBombTo = allCoord.splice(rand(allCoord.length), 1);       // splice a random coordinate from map to setBomb
         bombMap[setBombTo[0][0]][setBombTo[0][1]] = 9;               // now that coordinate has a bomb and is removed from possible
     }
 
-    checkList = [];
-    skipList = [];
-    for (var i = 0; i < mapSize; i++) {
-        for (var j = 1; j < mapSize; j++) {
-            if (i === 0 || j === 0 || i === mapSize - 1 || j === mapSize - 1) {
+    checkList = [];                                                                                 // these two arrays are workqueues and trackers. between them, they should never hold the same coordinates
+    skipList = [];                                                                                  //      If it's checked, skip, if it's on skip, never check again
+
+    for (var i = 0; i < mapSize; i++) {                                                             // the game struggles with edge-cases when exploring zeros
+        for (var j = 1; j < mapSize; j++) {                                                         //      this loop adds all edge coordinates to the skip list
+            if (i === 0 || j === 0 || i === mapSize - 1 || j === mapSize - 1) {                     //      this way time is not waste on checking all the edge "zero's"
                 skipList.push([i, j]);
             }
         }
@@ -106,24 +99,17 @@ function updateSolution() {
             if (bombMap[y][x] === 9) {
 
                 for (var i = -1; i <= 1; i++) {
-                    for (var j = -1; j <= 1; j++) {             // addNeighbour()
+                    for (var j = -1; j <= 1; j++) {
                         solutionMap[y + i][x + j] += 1;
                     }
                 }
             }
         }
     }
-    for (var y = 1; y <= gameSize; y++) {
-        for (var x = 1; x <= gameSize; x++) {
-            if (bombMap[y][x] === 9) {
-                solutionMap[y][x] = "💥";
-            }
-        }
-    }
 }
 
-window.click = click;
-window.contextmenu = flag;
+window.click = click;               // used windows click events to bypass eventlistener
+window.contextmenu = flag;          //      not the most proud of this
 
 function flag(y, x) {
     if (playerMap[y][x] === "🚩") {
@@ -164,7 +150,7 @@ function click(y, x) {
 
 }
 
-function checkStatus() {
+function checkStatus() {                        // runs recursion under using the check/skip lists
     while (checkList.length > 0) {
         var y = checkList[0][0];
         var x = checkList[0][1];
@@ -204,6 +190,7 @@ function expand(y, x) {
 }
 
 // 3. create the concealed mapping
+// 4. create UI commands
 
 function display() {
     var str = "";
@@ -243,7 +230,6 @@ function display() {
         checkWin();
     }
 }
-// 4. create UI commands
 
 function checkWin() {
     for (var y = 1; y <= gameSize; y++) {
