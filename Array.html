@@ -7,8 +7,9 @@
 </head>
 
 <body oncontextmenu="return false">
-    <h1>Minesweeper</h1>
-    <!-- <ol>
+    <div id="container">
+        <h1>Minesweeper</h1>
+        <!-- <ol>
         <li class="done">Create the solution mapping</li>
             <ol type="a">
                 <li class="done">Create "map" based on set size</li>
@@ -40,18 +41,25 @@
         <li class="done">create the concealed mapping</li>
         <li class="done">create UI</li>    
     </ol> -->
-    <button onclick="newGame(10,10)">Easy 10x10 (10 bombs)</button>
-    <button onclick="newGame(60,20)">Medium 20x20 (60 bombs)</button>
-    <button onclick="newGame(150,30)">Challenge 30x30 (150 bombs)</button>
-    <pre id="show"></pre>
-    <script src="minesweeper.js"></script>
-    <p>If you'd like to customize your game:
-        <ol>
-            <li>Open console by pressing F12 or cmd + i</li>
-            <li>type "newGame(<em>Bomb Count</em>, Map Width)"</li>
-        </ol>
-    </p>
+        <div id="info">
+            <p>If you'd like to customize your game:
+                <ol>
+                    <li>Open console by pressing F12 or cmd + i</li>
+                    <li>type "newGame(
+                        <em>Bomb Count</em>, Map Width)"</li>
+                </ol>
+            </p>
+        </div>
+        <button class="newgame" onclick="newGame(10,10)">Easy 10x10
+            <br>(10 bombs)</button>
+        <button class="newgame" onclick="newGame(60,20)">Difficult 20x20
+            <br>(60 bombs)</button>
+        <button class="newgame" onclick="newGame(150,30)">Improbable 30x30
+            <br> (150 bombs)</button>
+        <pre id="show"></pre>
+        <script src="minesweeper.js"></script>
 
+    </div>
 
 </body>
 
