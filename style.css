@@ -1,5 +1,23 @@
-body {
+#container {
     font-family: monospace;
+    text-align: center;
+    width: fit-content;
+    max-width: 1920px;
+    margin: 15px auto;
+    align-items: center;
+}
+
+#info {
+    width: fit-content;
+    text-align: left;
+}
+button.newgame {
+    border: none;
+    border-radius: 10px;
+    width: 150px;
+    padding: 15px;
+    font-family: monospace;
+    
 }
 
 button.field {
@@ -29,9 +47,5 @@ button.new {
     text-decoration: none;
     display: inline-block;
     background-color: #ddd;
-    
     cursor: pointer;
 }
-/* .emoji {
-    margin: 2px 0 -2px 0;    
-} */
