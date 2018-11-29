@@ -159,14 +159,14 @@ function checkStatus() {                        // runs recursion under using th
     }
 }
 
-function isNewTo(searchArray, searchItem) {     // checks whether array already exists within array
-    for (i = 0; i < searchArray.length; i++) {
-        if (String(searchArray[i]) == String(searchItem)) {
-            return false;
-        }
-    }
-    return true;
-}
+// function isNewTo(searchArray, searchItem) {     // checks whether array already exists within array
+//     for (var i = 0; i < searchArray.length; i++) {
+//         if (String(searchArray[i]) == String(searchItem)) {
+//             return false;
+//         }
+//     }
+//     return true;
+// }
 
 
 function expand(y, x) {
@@ -178,8 +178,10 @@ function expand(y, x) {
                 if (playerMap[yi][xj] === " ") {         // if playerMap is unrevealed, reveal now
                     playerMap[yi][xj] = solutionMap[yi][xj];
                     if (playerMap[yi][xj] === 0) {         // if playerMap is unrevealed, reveal now
-                        if (yi > 0 && yi < mapSize && xj > 0 && xj < mapSize && isNewTo(skipList, [yi, xj]) && isNewTo(checkList, [(yi), (xj)])) {
+                        // if (yi > 0 && yi < mapSize && xj > 0 && xj < mapSize && isNewTo(skipList, [yi, xj]) && isNewTo(checkList, [(yi), (xj)])) {
+                        if (yi > 0 && yi < mapSize && xj > 0 && xj < mapSize && skipList.indexOf([yi, xj]) < 0 && checkList.indexOf([(yi), (xj)])<= 0) {
                             checkList.push([yi, xj]);
+                            console.log("skipList.indexOf([yi, xj]) < 0" + skipList.indexOf([yi, xj]) < 0 + "checkList.indexOf([(yi), (xj)])<= 0" + checkList.indexOf([(yi), (xj)])<= 0)
                         }
                     }
                 }
