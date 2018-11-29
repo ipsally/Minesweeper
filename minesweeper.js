@@ -181,7 +181,7 @@ function expand(y, x) {
                         // if (yi > 0 && yi < mapSize && xj > 0 && xj < mapSize && isNewTo(skipList, [yi, xj]) && isNewTo(checkList, [(yi), (xj)])) {
                         if (yi > 0 && yi < mapSize && xj > 0 && xj < mapSize && skipList.indexOf([yi, xj]) < 0 && checkList.indexOf([(yi), (xj)])<= 0) {
                             checkList.push([yi, xj]);
-                            console.log("skipList.indexOf([yi, xj]) < 0" + skipList.indexOf([yi, xj]) < 0 + "checkList.indexOf([(yi), (xj)])<= 0" + checkList.indexOf([(yi), (xj)])<= 0)
+                            // console.log("skipList.indexOf([yi, xj]) < 0" + skipList.indexOf([yi, xj]) < 0 + "checkList.indexOf([(yi), (xj)])<= 0" + checkList.indexOf([(yi), (xj)])<= 0)
                         }
                     }
                 }
